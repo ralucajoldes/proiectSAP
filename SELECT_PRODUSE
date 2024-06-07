@@ -1,0 +1,6 @@
+method SELECT_PRODUSE.
+    clear it_produse.
+    select *
+      from YPRODUSE
+      INTO CORRESPONDING FIELDS OF TABLE it_produse.
+  endmethod.

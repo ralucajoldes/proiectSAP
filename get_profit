@@ -1,0 +1,5 @@
+METHOD get_profit.
+    LOOP AT it_comenzi INTO ls_comanda.
+      rv_profit = rv_profit + ls_comanda-total_plata.
+    ENDLOOP.
+  ENDMETHOD.

@@ -1,0 +1,30 @@
+METHOD display_client.
+    DATA: lv_nr_max    TYPE i VALUE '0',
+          lv_nr        TYPE i.
+
+    LOOP AT it_clienti INTO ls_client.
+
+      lv_nr = 0.
+
+      LOOP AT it_comenzi INTO ls_comanda WHERE client_nr = ls_client-client_nr.
+        lv_nr =  lv_nr + 1.
+      ENDLOOP.
+
+      IF lv_nr >= lv_nr_max.
+        lv_nr_max = lv_nr.
+        ls_clientfid-client_nr = ls_client-client_nr.
+        ls_clientfid-nume = ls_client-nume.
+        ls_clientfid-telefon = ls_client-telefon.
+        APPEND ls_clientfid to it_clientifid.
+      ENDIF.
+
+    ENDLOOP.
+
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+        i_structure_name = 'YCLIENTIFID_S'
+      TABLES
+        t_outtab         = it_clientifid.
+
+
+  ENDMETHOD.

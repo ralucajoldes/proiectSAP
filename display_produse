@@ -1,0 +1,38 @@
+METHOD display_produse.
+    IF sy-datum+4(2) <> '03' AND sy-datum+4(2) <> '04' AND sy-datum+4(2) <> '05'
+      AND sy-datum+4(2) <> '06' AND sy-datum+4(2) <> '07' AND sy-datum+4(2) <> '08'.
+      LOOP AT it_produse INTO ls_produs WHERE sezon = 'primavara-vara'.
+        ls_prodred-produs_id = ls_produs-produs_id.
+        ls_prodred-brand = ls_produs-brand.
+        ls_prodred-denumire_produs = ls_produs-denumire_produs.
+        ls_prodred-categorie = ls_produs-categorie.
+        ls_prodred-sezon = ls_produs-sezon.
+        ls_prodred-marime = ls_produs-marime.
+        ls_prodred-pret = ls_produs-pret / 2.
+        ls_prodred-moneda = ls_produs-moneda.
+        APPEND ls_prodred TO it_prodred.
+      ENDLOOP.
+    ELSEIF sy-datum+4(2) <> '01' AND sy-datum+4(2) <> '02' AND sy-datum+4(2) <> '09'
+      AND sy-datum+4(2) <> '10' AND sy-datum+4(2) <> '11' AND sy-datum+4(2) <> '12'.
+      LOOP AT it_produse INTO ls_produs WHERE sezon = 'toamna-iarna'.
+        ls_prodred-produs_id = ls_produs-produs_id.
+        ls_prodred-brand = ls_produs-brand.
+        ls_prodred-denumire_produs = ls_produs-denumire_produs.
+        ls_prodred-categorie = ls_produs-categorie.
+        ls_prodred-sezon = ls_produs-sezon.
+        ls_prodred-marime = ls_produs-marime.
+        ls_prodred-pret = ls_produs-pret / 2.
+        ls_prodred-moneda = ls_produs-moneda.
+        APPEND ls_prodred TO it_prodred.
+      ENDLOOP.
+    ENDIF.
+
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+        i_structure_name = 'YPRODRED_S'
+      TABLES
+        t_outtab         = it_prodred.
+
+
+
+  ENDMETHOD.

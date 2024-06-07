@@ -1,0 +1,78 @@
+&---------------------------------------------------------------------
+*& Report YPROGRAM_FORMULAR
+&---------------------------------------------------------------------
+*&
+&---------------------------------------------------------------------
+REPORT yprogram_formular.
+PARAMETERS: pa_nr TYPE yclienti-client_nr.
+
+DATA: ls_client         TYPE yclienti_s,
+      it_clienti        TYPE yclienti_tt,
+      ls_comanda        TYPE ycomenzi_s,
+      it_comenzi        TYPE ycomenzi_tt,
+      ls_produs         TYPE yproduse_s,
+      it_produse        TYPE yproduse_tt,
+      ls_produscomanda  TYPE yprodusecomanda_s,
+      it_produsecomanda TYPE yprodusecomanda_tt.
+
+
+DATA: lv_nume       TYPE yclienti-nume,
+      lv_adresa     TYPE yclienti-adresa,
+      lv_localitate TYPE yclienti-oras,
+      lv_telefon    TYPE yclienti-telefon.
+
+DATA:lv_nr_comenzi TYPE int4.
+
+DATA: lv_nr_form TYPE rs38l_fnam.
+
+SELECT SINGLE *
+  FROM yclienti
+  INTO CORRESPONDING FIELDS OF ls_client
+  WHERE client_nr = pa_nr.
+
+IF ls_client IS NOT INITIAL.
+  SELECT *
+  FROM ycomenzi
+  INTO CORRESPONDING FIELDS OF TABLE it_comenzi
+  WHERE client_nr = ls_client-client_nr.
+ENDIF.
+
+IF it_comenzi IS NOT INITIAL.
+  SELECT *
+    FROM yprodusecomanda
+    INTO CORRESPONDING FIELDS OF TABLE it_produsecomanda
+    FOR ALL ENTRIES IN it_comenzi
+    WHERE comanda_nr = it_comenzi-comanda_nr.
+ENDIF.
+
+IF it_produsecomanda IS NOT INITIAL.
+  SELECT *
+    FROM yproduse
+    INTO CORRESPONDING FIELDS OF TABLE it_produse
+    FOR ALL ENTRIES IN it_produsecomanda
+    WHERE produs_id = it_produsecomanda-produs_id.
+ENDIF.
+
+
+lv_nume = ls_client-nume.
+lv_adresa = ls_client-adresa.
+lv_localitate = ls_client-oras.
+lv_telefon = ls_client-telefon.
+
+DESCRIBE TABLE it_comenzi LINES lv_nr_comenzi.
+
+
+CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+  EXPORTING
+    formname = 'YCLIENT_FORM'
+  IMPORTING
+    fm_name  = lv_nr_form.
+
+CALL FUNCTION lv_nr_form
+  EXPORTING
+    gv_nume       = lv_nume
+    gv_adresa     = lv_adresa
+    gv_localitate = lv_localitate
+    gv_telefon    = lv_telefon
+    gv_nr_comenzi = lv_nr_comenzi
+    gt_produse    = it_produse.

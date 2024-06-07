@@ -1,5 +1,5 @@
 # proiectSAP
-proiect facut in SAP
+
 Project made in SAP for a store manager with the following functionalities:
 -displaying the orders from a certain time interval or a certain date entered from the keyboard and the amount collected by the store following these orders.
 -displaying products that are not in season at a reduced price

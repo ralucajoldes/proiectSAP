@@ -1,0 +1,13 @@
+method SELECT_CLIENTI.
+    clear it_clienti.
+    clear it_comenzi.
+
+    select *
+      from yclienti
+      into CORRESPONDING FIELDS OF table it_clienti.
+
+    select *
+      from ycomenzi
+      into CORRESPONDING FIELDS OF table it_comenzi.
+
+  endmethod.

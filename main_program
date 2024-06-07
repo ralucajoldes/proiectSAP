@@ -1,0 +1,65 @@
+&---------------------------------------------------------------------
+*& Report YCLSGLOB_PROFIT
+&---------------------------------------------------------------------
+*&
+&---------------------------------------------------------------------
+REPORT yclsglob_profit.
+TABLES: ycomenzi.
+SELECTION-SCREEN BEGIN OF BLOCK comenzi WITH FRAME TITLE TEXT-001.
+SELECT-OPTIONS so_dat FOR ycomenzi-data_comanda.
+PARAMETERS: cb_afis TYPE c AS CHECKBOX,
+            cb_prof TYPE c AS CHECKBOX.
+SELECTION-SCREEN END OF BLOCK comenzi.
+
+SELECTION-SCREEN BEGIN OF BLOCK choice WITH FRAME TITLE TEXT-002.
+PARAMETERS: cb_exre TYPE c AS CHECKBOX,
+            cb_clfi TYPE c AS CHECKBOX.
+
+SELECTION-SCREEN END OF BLOCK choice.
+
+DATA: lo_mag1 TYPE REF TO zcl_magazinincaltaminte.
+
+AT SELECTION-SCREEN.
+
+  CREATE OBJECT lo_mag1.
+  IF cb_afis = 'X' AND so_dat IS NOT INITIAL.
+    CALL METHOD lo_mag1->verificare_data EXPORTING iv_data = so_dat[].
+  ELSEIF cb_afis = 'X' AND so_dat IS INITIAL.
+    MESSAGE 'Trebuie sa completati campul Data!' TYPE 'E'.
+  ELSEIF cb_prof = 'X' AND so_dat IS NOT INITIAL.
+    CALL METHOD lo_mag1->verificare_data EXPORTING iv_data = so_dat[].
+  ELSEIF cb_prof = 'X' AND so_dat IS  INITIAL.
+    MESSAGE 'Trebuie sa completati campul Data!' TYPE 'E'.
+  ENDIF.
+
+
+
+START-OF-SELECTION.
+
+  IF ( cb_afis = 'X' AND so_dat IS NOT INITIAL ) OR ( cb_prof = 'X' AND so_dat IS NOT INITIAL ) .
+    CALL METHOD lo_mag1->select_data EXPORTING iv_data = so_dat[].
+  ELSEIF cb_exre = 'X'.
+    lo_mag1->select_produse( ).
+  ELSEIF cb_clfi = 'X'.
+    lo_mag1->select_clienti( ).
+  ENDIF.
+
+END-OF-SELECTION.
+
+  IF cb_afis = 'X' AND so_dat IS NOT INITIAL.
+
+    lo_mag1->display_data( ).
+
+  ELSEIF cb_prof = 'X' AND so_dat IS NOT INITIAL.
+
+    WRITE: 'Incasarile sunt in valoare de : ', lo_mag1->get_profit( ), 'RON'.
+
+  ELSEIF cb_exre = 'X'.
+
+    lo_mag1->display_produse( ).
+
+  ELSEIF cb_clfi = 'X'.
+
+    lo_mag1->display_client( ).
+
+  ENDIF.

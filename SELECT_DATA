@@ -1,0 +1,7 @@
+method SELECT_DATA.
+    CLEAR it_comenzi.
+    SELECT  *
+      FROM YCOMENZI
+      INTO CORRESPONDING FIELDS OF TABLE IT_COMENZI
+      WHERE ( DATA_COMANDA IN IV_DATA and tip_plata = 'Card' ) or ( DATA_COMANDA IN IV_DATA and tip_plata = 'Cash' and status = 'Livrata' ) .
+  endmethod.

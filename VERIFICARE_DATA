@@ -1,0 +1,15 @@
+method VERIFICARE_DATA.
+   IF iv_data IS NOT INITIAL.
+
+      SELECT *
+        FROM ycomenzi
+        INTO CORRESPONDING FIELDS OF TABLE it_comenzi
+        WHERE data_comanda IN iv_data.
+
+      IF sy-subrc NE 0.
+        MESSAGE 'Nu exista comenzi!' TYPE 'E'.
+      ENDIF.
+
+    ENDIF.
+    CLEAR it_comenzi.
+  endmethod.

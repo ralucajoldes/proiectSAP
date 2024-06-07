@@ -1,0 +1,7 @@
+METHOD display_data.
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+        i_structure_name = 'YCOMENZI_S'
+      TABLES
+        t_outtab         = it_comenzi.
+  ENDMETHOD.

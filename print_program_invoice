@@ -1,0 +1,121 @@
+&---------------------------------------------------------------------
+*& Report YPROGRAM_FACTURA
+&---------------------------------------------------------------------
+*&
+&---------------------------------------------------------------------
+REPORT YPROGRAM_FACTURA.
+
+PARAMETERS: pa_nr TYPE ycomenzi-comanda_nr.
+
+DATA: ls_client         TYPE yclienti_s,
+      it_clienti        TYPE yclienti_tt,
+      ls_comanda        TYPE ycomenzi_s,
+      it_comenzi        TYPE ycomenzi_tt,
+      ls_produs         TYPE yproduse_s,
+      it_produse        TYPE yproduse_tt,
+      ls_produscomanda  TYPE yprodusecomanda_s,
+      it_produsecomanda TYPE yprodusecomanda_tt,
+      ls_produsfactura type YFACTURA_S,
+      it_produsefactura type YFACTURA_tt.
+
+
+DATA: lv_nume       TYPE yclienti-nume,
+      lv_adresa     TYPE yclienti-adresa,
+      lv_localitate TYPE yclienti-oras,
+      lv_telefon    TYPE yclienti-telefon.
+
+DATA: lv_comanda_nr type ycomenzi-comanda_nr,
+      lv_data_comanda type ycomenzi-data_comanda,
+      lv_total_plata type ycomenzi-total_plata,
+      lv_moneda type ycomenzi-moneda.
+
+*DATA:lv_nr_comenzi TYPE int4.
+*
+DATA: lv_nr_form TYPE rs38l_fnam.
+
+SELECT SINGLE *
+  FROM ycomenzi
+  INTO CORRESPONDING FIELDS OF ls_comanda
+  WHERE comanda_nr = pa_nr.
+
+*WRITE :/ ls_comanda-comanda_nr, ls_comanda-client_nr, ls_comanda-data_comanda, ls_comanda-total_plata,ls_comanda-moneda.
+
+IF ls_comanda IS NOT INITIAL.
+
+  SELECT SINGLE *
+  FROM yclienti
+  INTO CORRESPONDING FIELDS OF ls_client
+  WHERE client_nr = ls_comanda-client_nr.
+
+  SELECT *
+    FROM yprodusecomanda
+    INTO CORRESPONDING FIELDS OF TABLE it_produsecomanda
+    WHERE comanda_nr = ls_comanda-comanda_nr.
+
+ENDIF.
+
+*WRITE :/ ls_client-client_nr, ls_client-nume, ls_client-adresa, ls_client-oras,ls_client-telefon.
+
+*loop at it_produsecomanda into ls_produscomanda.
+*  WRITE :/ ls_produscomanda-comanda_nr, ls_produscomanda-produs_id, ls_produscomanda-nr_bucati.
+*ENDLOOP.
+
+
+IF it_produsecomanda IS NOT INITIAL.
+  SELECT *
+    FROM yproduse
+    INTO CORRESPONDING FIELDS OF TABLE it_produse
+    FOR ALL ENTRIES IN it_produsecomanda
+    WHERE produs_id = it_produsecomanda-produs_id.
+ENDIF.
+
+*loop at it_produse into ls_produs.
+*  WRITE :/ ls_produs-produs_id, ls_produs-brand, ls_produs-denumire_produs, ls_produs-pret,ls_produs-moneda.
+*ENDLOOP.
+
+lv_comanda_nr = ls_comanda-comanda_nr.
+lv_data_comanda = ls_comanda-data_comanda.
+lv_total_plata = ls_comanda-total_plata.
+lv_moneda = ls_comanda-moneda.
+
+
+lv_nume = ls_client-nume.
+lv_adresa = ls_client-adresa.
+lv_localitate = ls_client-oras.
+lv_telefon = ls_client-telefon.
+
+loop at it_produsecomanda into ls_produscomanda.
+  READ TABLE it_produse into ls_produs WITH KEY produs_id = ls_produscomanda-produs_id.
+  ls_produsfactura-brand = ls_produs-brand.
+  ls_produsfactura-denumire_produs = ls_produs-denumire_produs.
+  ls_produsfactura-nr_bucati = ls_produscomanda-nr_bucati.
+  ls_produsfactura-pret = ls_produs-pret.
+  ls_produsfactura-moneda = ls_produs-moneda.
+  APPEND ls_produsfactura to it_produsefactura.
+ENDLOOP.
+
+*loop at it_produsefactura into ls_produsfactura.
+*  Write:/   ls_produsfactura-brand,ls_produsfactura-denumire_produs,ls_produsfactura-nr_bucati,
+*  ls_produsfactura-pret,ls_produsfactura-moneda.
+*ENDLOOP.
+
+*DESCRIBE TABLE it_comenzi LINES lv_nr_comenzi.
+
+
+CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+  EXPORTING
+    formname                 = 'YFACTURA'
+ IMPORTING
+   FM_NAME                  = lv_nr_form.
+
+CALL FUNCTION lv_nr_form
+  EXPORTING
+    gv_nume       = lv_nume
+    gv_adresa     = lv_adresa
+    gv_localitate = lv_localitate
+    gv_telefon    = lv_telefon
+    gv_comanda_nr = lv_comanda_nr
+    gv_data_comanda = lv_data_comanda
+    gt_produse    = it_produsefactura
+    gv_pret       = lv_total_plata
+    gv_moneda     = lv_moneda.
